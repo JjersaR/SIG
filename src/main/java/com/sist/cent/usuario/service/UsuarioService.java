@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sist.cent.usuario.controller.dto.UsuarioDTO;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioService {
 
   private final IUsuarioRepository repository;
+  private final PasswordEncoder passwordEncoder;
 
   public List<UsuarioDTO> getAll() {
     return toUsuarioDTOs(repository.findAll());
@@ -29,6 +31,7 @@ public class UsuarioService {
   }
 
   public void save(UsuarioRequest usuario) {
+    usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
     repository.save(toUsuario(usuario));
   }
 
