@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
 import com.sist.cent.venta.service.VentaService;
@@ -58,6 +59,11 @@ public class VentaController {
   public ResponseEntity<String> delete(@RequestParam Long id) {
     service.delete(id);
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/dashboard")
+  public ResponseEntity<IDashBoard> getDashBoard() {
+    return ResponseEntity.ok(service.getDashBoard());
   }
 
 }

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
+import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
 import com.sist.cent.venta.entity.Venta;
@@ -34,6 +35,10 @@ public class VentaService {
 
   public void delete(Long id) {
     repository.deleteById(id);
+  }
+
+  public IDashBoard getDashBoard() {
+    return repository.getDashboard();
   }
 
   // mapper
