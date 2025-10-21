@@ -1,10 +1,15 @@
 package com.sist.cent.venta.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sist.cent.venta.controller.dto.IDashBoard;
+import com.sist.cent.venta.controller.dto.IDatosSucursal;
+import com.sist.cent.venta.controller.dto.IHoraPico;
+import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.entity.Venta;
 
 @Repository
@@ -55,5 +60,51 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
            LIMIT 1) as productoTop;
         """, nativeQuery = true)
   public IDashBoard getDashboard();
+
+  @Query(value = """
+      SELECT
+          s.nombre as sucursal,
+          COALESCE(SUM(v.subtotal), 0) as ventasHoy,
+          COALESCE(AVG(v.subtotal), 0) as ticketPromedio
+      FROM venta v
+      JOIN sucursal s ON v.sucursal_id = s.id
+      WHERE DATE(v.fecha_venta) = CURDATE()
+        AND s.id = :id;
+          """, nativeQuery = true)
+  public IDatosSucursal datosSucursal(Long id);
+
+  @Query(value = """
+      SELECT
+        p.nombre,
+        SUM(v.cantidad) as cantidad
+      FROM venta v
+      JOIN producto p ON v.producto_id = p.id
+      JOIN sucursal s ON v.sucursal_id = s.id
+      WHERE DATE(v.fecha_venta) = CURDATE()
+        AND s.id = :id
+      GROUP BY p.id, p.nombre
+      ORDER BY SUM(v.cantidad) DESC
+      LIMIT 5;
+        """, nativeQuery = true)
+  public List<IProductoMasVendido> getProductoMasVendidos(Long id);
+
+  @Query(value = """
+      SELECT
+          CONCAT(
+              HOUR(v.fecha_venta),
+              ':00-',
+              HOUR(v.fecha_venta) + 2,
+              ':00'
+          ) as horarioPico,
+          SUM(v.subtotal) as ventas
+      FROM venta v
+      JOIN sucursal s ON v.sucursal_id = s.id
+      WHERE DATE(v.fecha_venta) = CURDATE()
+          AND s.id = :id
+      GROUP BY HOUR(v.fecha_venta), v.fecha_venta
+      ORDER BY ventas DESC
+      LIMIT 1;
+          """, nativeQuery = true)
+  public IHoraPico getHorarioPico(Long id);
 
 }

@@ -7,6 +7,10 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.sist.cent.venta.controller.dto.IDashBoard;
+import com.sist.cent.venta.controller.dto.IDatosSucursal;
+import com.sist.cent.venta.controller.dto.IProductoMasVendido;
+import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
+import com.sist.cent.venta.controller.dto.TopProductos;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
 import com.sist.cent.venta.entity.Venta;
@@ -39,6 +43,22 @@ public class VentaService {
 
   public IDashBoard getDashBoard() {
     return repository.getDashboard();
+  }
+
+  public SucursalDashboardDTO getSucursalDashboard(Long id) {
+    var datos = repository.datosSucursal(id);
+    var productos = repository.getProductoMasVendidos(id);
+    var horario = repository.getHorarioPico(id);
+
+    return SucursalDashboardDTO.builder()
+        .sucursal(datos.getSucursal())
+        .ventasHoy(datos.getVentasHoy())
+        .ticketPromedio(datos.getTicketPromedio())
+        .topProductos(productos.stream()
+            .map(this::toTopProductos).toList())
+        .horarioPico(horario.getHorarioPico())
+        .ventas(horario.getVentas())
+        .build();
   }
 
   // mapper
@@ -83,6 +103,13 @@ public class VentaService {
         .sucursalId(venta.getSucursalId())
         .medioPago(venta.getMedioPago())
         .usuarioId(venta.getUsuarioId())
+        .build();
+  }
+
+  private TopProductos toTopProductos(IProductoMasVendido producto) {
+    return TopProductos.builder()
+        .nombre(producto.getNombre())
+        .cantidad(producto.getCantidad())
         .build();
   }
 }
