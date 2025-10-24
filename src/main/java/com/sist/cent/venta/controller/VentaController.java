@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sist.cent.venta.controller.dto.EAgrupacion;
+import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.VentaDTO;
@@ -70,6 +72,12 @@ public class VentaController {
   @GetMapping("/dashboard/sucursal")
   public ResponseEntity<SucursalDashboardDTO> getDashBoardSucursal(@RequestParam Long id) {
     return ResponseEntity.ok(service.getSucursalDashboard(id));
+  }
+
+  @GetMapping("/analisis")
+  public ResponseEntity<List<IAnalisisVentas>> getAnalisis(@RequestParam String fechaInicio,
+      @RequestParam String fechaFin, @RequestParam EAgrupacion agrupacion) {
+    return ResponseEntity.ok(service.getAnalisisVentas(fechaInicio, fechaFin, agrupacion));
   }
 
 }

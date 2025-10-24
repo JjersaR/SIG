@@ -6,8 +6,9 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
+import com.sist.cent.venta.controller.dto.EAgrupacion;
+import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
-import com.sist.cent.venta.controller.dto.IDatosSucursal;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.TopProductos;
@@ -17,7 +18,9 @@ import com.sist.cent.venta.entity.Venta;
 import com.sist.cent.venta.repository.IVentaRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VentaService {
@@ -59,6 +62,21 @@ public class VentaService {
         .horarioPico(horario.getHorarioPico())
         .ventas(horario.getVentas())
         .build();
+  }
+
+  public List<IAnalisisVentas> getAnalisisVentas(String fechaInicio, String fechaFin, EAgrupacion agrupacion) {
+    switch (agrupacion) {
+      case EAgrupacion.DIARIA:
+        return repository.getAnalisisDiaria(fechaInicio, fechaFin);
+      case EAgrupacion.SEMANAL:
+        return repository.getAnalisisSemanal(fechaInicio, fechaFin);
+      case EAgrupacion.MENSUAL:
+        return repository.getAnalisisMensual(fechaInicio, fechaFin);
+      case EAgrupacion.ANUAL:
+        return repository.getAnalisisAnual(fechaInicio, fechaFin);
+      default:
+        return Collections.emptyList();
+    }
   }
 
   // mapper

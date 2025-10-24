@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IDatosSucursal;
 import com.sist.cent.venta.controller.dto.IHoraPico;
@@ -106,5 +107,57 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
       LIMIT 1;
           """, nativeQuery = true)
   public IHoraPico getHorarioPico(Long id);
+
+  @Query(value = """
+      SELECT
+          DATE(v.fecha_venta) as fecha,
+          SUM(v.subtotal) as totalVentas,
+          COUNT(DISTINCT v.venta_id) as cantidadVentas,
+          AVG(v.subtotal) as ticketPromedio
+      FROM venta v
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY DATE(v.fecha_venta)
+      ORDER BY fecha;
+            """, nativeQuery = true)
+  public List<IAnalisisVentas> getAnalisisDiaria(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          CONCAT('Semana ', LPAD(WEEK(v.fecha_venta), 2, '0'), ' ', YEAR(v.fecha_venta)) as fecha,
+          SUM(v.subtotal) as totalVentas,
+          COUNT(DISTINCT v.venta_id) as cantidadVentas,
+          AVG(v.subtotal) as ticketPromedio
+      FROM venta v
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY YEAR(v.fecha_venta), WEEK(v.fecha_venta), fecha
+      ORDER BY MIN(v.fecha_venta);
+          """, nativeQuery = true)
+  public List<IAnalisisVentas> getAnalisisSemanal(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          DATE_FORMAT(v.fecha_venta, '%Y-%m') as fecha,
+          SUM(v.subtotal) as totalVentas,
+          COUNT(DISTINCT v.venta_id) as cantidadVentas,
+          AVG(v.subtotal) as ticketPromedio
+      FROM venta v
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY YEAR(v.fecha_venta), MONTH(v.fecha_venta), fecha
+      ORDER BY fecha;
+          """, nativeQuery = true)
+  public List<IAnalisisVentas> getAnalisisMensual(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          YEAR(v.fecha_venta) as fecha,
+          SUM(v.subtotal) as totalVentas,
+          COUNT(DISTINCT v.venta_id) as cantidadVentas,
+          AVG(v.subtotal) as ticketPromedio
+      FROM venta v
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY YEAR(v.fecha_venta)
+      ORDER BY fecha;
+          """, nativeQuery = true)
+  public List<IAnalisisVentas> getAnalisisAnual(String fechaInicio, String fechaFin);
 
 }
