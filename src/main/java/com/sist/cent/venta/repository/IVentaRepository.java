@@ -11,6 +11,7 @@ import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IDatosSucursal;
 import com.sist.cent.venta.controller.dto.IHoraPico;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
+import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
 import com.sist.cent.venta.entity.Venta;
 
 @Repository
@@ -159,5 +160,26 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
       ORDER BY fecha;
           """, nativeQuery = true)
   public List<IAnalisisVentas> getAnalisisAnual(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          p.nombre as producto,
+          SUM(v.cantidad) as cantidadVendida,
+          SUM(v.subtotal) as totalVendido,
+          CONCAT(ROUND(
+              (SUM(v.subtotal) - SUM(v.costo_unitario * v.cantidad)) /
+              SUM(v.subtotal) * 100,
+          1), '%') as margenPromedio
+      FROM venta v
+      JOIN producto p ON v.producto_id = p.id
+      JOIN sucursal s ON v.sucursal_id = s.id
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+          AND (:sucursalId IS NULL OR s.id = :sucursalId)
+      GROUP BY p.id, p.nombre
+      ORDER BY cantidadVendida DESC
+      LIMIT :top;
+          """, nativeQuery = true)
+  public List<IProductoMasVendidos> getProductoMasVendidos(String fechaInicio, String fechaFin, Long sucursalId,
+      int top);
 
 }
