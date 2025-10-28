@@ -12,6 +12,7 @@ import com.sist.cent.venta.controller.dto.IDatosSucursal;
 import com.sist.cent.venta.controller.dto.IHoraPico;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
+import com.sist.cent.venta.controller.dto.IProductosMargenes;
 import com.sist.cent.venta.entity.Venta;
 
 @Repository
@@ -181,5 +182,25 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
           """, nativeQuery = true)
   public List<IProductoMasVendidos> getProductoMasVendidos(String fechaInicio, String fechaFin, Long sucursalId,
       int top);
+
+  @Query(value = """
+      SELECT
+          p.nombre as producto,
+          AVG(v.costo_unitario) as costoPromedio,
+          AVG(v.precio_unitario) as precioVentaPromedio,
+          AVG(v.precio_unitario - v.costo_unitario) as margen,
+          CONCAT(ROUND(
+              (AVG(v.precio_unitario) - AVG(v.costo_unitario)) /
+              AVG(v.precio_unitario) * 100,
+          1), '%') as margenPorcentaje
+      FROM producto p
+      JOIN venta v ON p.id = v.producto_id
+      JOIN sucursal s ON v.sucursal_id = s.id
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+          AND (:sucursalId IS NULL OR s.id = :sucursalId)
+      GROUP BY p.id, p.nombre
+      ORDER BY margenPorcentaje DESC;
+          """, nativeQuery = true)
+  public List<IProductosMargenes> getProductosMargenes(String fechaInicio, String fechaFin, Long sucursalId);
 
 }

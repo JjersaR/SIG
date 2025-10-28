@@ -11,6 +11,7 @@ import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
+import com.sist.cent.venta.controller.dto.IProductosMargenes;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.TopProductos;
 import com.sist.cent.venta.controller.dto.VentaDTO;
@@ -83,6 +84,10 @@ public class VentaService {
   public List<IProductoMasVendidos> getProductoMasVendidos(String fechaInicio, String fechaFin, Long sucursalId,
       int top) {
     return repository.getProductoMasVendidos(fechaInicio, fechaFin, sucursalId, top);
+  }
+
+  public List<IProductosMargenes> getProductosMargenes(String fechaInicio, String fechaFin, Long sucursalId) {
+    return repository.getProductosMargenes(fechaInicio, fechaFin, sucursalId);
   }
 
   // mapper

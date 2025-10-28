@@ -19,6 +19,7 @@ import com.sist.cent.venta.controller.dto.EAgrupacion;
 import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
+import com.sist.cent.venta.controller.dto.IProductosMargenes;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
@@ -85,6 +86,12 @@ public class VentaController {
   public ResponseEntity<List<IProductoMasVendidos>> getProductoMasVendidos(@RequestParam String fechaInicio,
       @RequestParam String fechaFin, @RequestParam Long sucursalId, @RequestParam int top) {
     return ResponseEntity.ok(service.getProductoMasVendidos(fechaInicio, fechaFin, sucursalId, top));
+  }
+
+  @GetMapping("/analisis/productos/margenes")
+  public ResponseEntity<List<IProductosMargenes>> getProductoMargenes(@RequestParam String fechaInicio,
+      @RequestParam String fechaFin, @RequestParam Long sucursalId) {
+    return ResponseEntity.ok(service.getProductosMargenes(fechaInicio, fechaFin, sucursalId));
   }
 
 }
