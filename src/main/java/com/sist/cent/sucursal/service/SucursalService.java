@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
+import com.sist.cent.sucursal.controller.dto.IComparativaSucursales;
+import com.sist.cent.sucursal.controller.dto.ISucursalTendencia;
 import com.sist.cent.sucursal.controller.dto.SucursalDTO;
 import com.sist.cent.sucursal.controller.dto.SucursalRequest;
 import com.sist.cent.sucursal.entity.Sucursal;
@@ -38,6 +40,14 @@ public class SucursalService {
 
   public void delete(Long id) {
     repository.deleteById(id);
+  }
+
+  public List<IComparativaSucursales> getComparativaSucursales(String fechaInicio, String fechaFin) {
+    return repository.getComparativaSucursales(fechaInicio, fechaFin);
+  }
+
+  public List<ISucursalTendencia> getSucursalTendencia(String fechaInicio, String fechaFin, Long sucursalId) {
+    return repository.getSucursalTendencia(fechaInicio, fechaFin, sucursalId);
   }
 
   // mapper
