@@ -23,6 +23,7 @@ import com.sist.cent.venta.controller.dto.IProductosMargenes;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
+import com.sist.cent.venta.controller.dto.VentasPorHorarioDTO;
 import com.sist.cent.venta.service.VentaService;
 
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,12 @@ public class VentaController {
   public ResponseEntity<List<IProductosMargenes>> getProductoMargenes(@RequestParam String fechaInicio,
       @RequestParam String fechaFin, @RequestParam Long sucursalId) {
     return ResponseEntity.ok(service.getProductosMargenes(fechaInicio, fechaFin, sucursalId));
+  }
+
+  @GetMapping("/analisis/horarios")
+  public ResponseEntity<List<VentasPorHorarioDTO>> getProductosPorHora(@RequestParam String fechaInicio,
+      @RequestParam String fechaFin) {
+    return ResponseEntity.ok(service.getVentasPorHorario(fechaInicio, fechaFin));
   }
 
 }

@@ -2,7 +2,9 @@ package com.sist.cent.venta.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -12,10 +14,13 @@ import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
 import com.sist.cent.venta.controller.dto.IProductosMargenes;
+import com.sist.cent.venta.controller.dto.IProductosPorHora;
+import com.sist.cent.venta.controller.dto.ProductoDTO;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
 import com.sist.cent.venta.controller.dto.TopProductos;
 import com.sist.cent.venta.controller.dto.VentaDTO;
 import com.sist.cent.venta.controller.dto.VentaRequest;
+import com.sist.cent.venta.controller.dto.VentasPorHorarioDTO;
 import com.sist.cent.venta.entity.Venta;
 import com.sist.cent.venta.repository.IVentaRepository;
 
@@ -88,6 +93,44 @@ public class VentaService {
 
   public List<IProductosMargenes> getProductosMargenes(String fechaInicio, String fechaFin, Long sucursalId) {
     return repository.getProductosMargenes(fechaInicio, fechaFin, sucursalId);
+  }
+
+  public List<VentasPorHorarioDTO> getVentasPorHorario(String fechaInicio, String fechaFin) {
+    var horas = repository.getVentasPorHorario(fechaInicio, fechaFin);
+    var productos = repository.getProductosPorHora(fechaInicio, fechaFin);
+
+    // Agrupar productos por hora usando Streams
+    Map<String, List<ProductoDTO>> productosPorHoraMap = productos.stream()
+        .collect(Collectors.groupingBy(
+            IProductosPorHora::getHora,
+            Collectors.mapping(
+                producto -> ProductoDTO.builder()
+                    .hora(producto.getHora())
+                    .producto(producto.getProducto())
+                    .cantidad(producto.getCantidad())
+                    .build(),
+                Collectors.toList())));
+
+    // Combinar ventas con productos usando Streams
+    return horas.stream()
+        .map(venta -> {
+          // Obtener los productos más vendidos para esta hora (top 3)
+          List<String> productosMasVendidos = productosPorHoraMap
+              .getOrDefault(venta.getHora(), Collections.emptyList())
+              .stream()
+              .sorted((p1, p2) -> p2.getCantidad().compareTo(p1.getCantidad())) // Orden descendente
+              .limit(3) // Top 3 productos
+              .map(ProductoDTO::getProducto)
+              .toList();
+
+          return VentasPorHorarioDTO.builder()
+              .hora(venta.getHora())
+              .ventasTotales(venta.getVentasTotales())
+              .cantidadVentas(venta.getCantidadVentas())
+              .productos(productosMasVendidos) // Solo los nombres
+              .build();
+        }).toList();
+
   }
 
   // mapper

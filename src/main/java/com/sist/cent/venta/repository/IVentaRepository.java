@@ -13,6 +13,8 @@ import com.sist.cent.venta.controller.dto.IHoraPico;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
 import com.sist.cent.venta.controller.dto.IProductosMargenes;
+import com.sist.cent.venta.controller.dto.IProductosPorHora;
+import com.sist.cent.venta.controller.dto.IVentasPorHorario;
 import com.sist.cent.venta.entity.Venta;
 
 @Repository
@@ -202,5 +204,30 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
       ORDER BY margenPorcentaje DESC;
           """, nativeQuery = true)
   public List<IProductosMargenes> getProductosMargenes(String fechaInicio, String fechaFin, Long sucursalId);
+
+  @Query(value = """
+      SELECT
+          DATE_FORMAT(v.fecha_venta, '%H:00') as hora,
+          SUM(v.subtotal) as ventasTotales,
+          COUNT(DISTINCT v.venta_id) as cantidadVentas
+      FROM venta v
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY DATE_FORMAT(v.fecha_venta, '%H:00')
+      ORDER BY hora;
+          """, nativeQuery = true)
+  public List<IVentasPorHorario> getVentasPorHorario(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          DATE_FORMAT(v.fecha_venta, '%H:00') as hora,
+          p.nombre as producto,
+          SUM(v.cantidad) as cantidad
+      FROM venta v
+      JOIN producto p ON v.producto_id = p.id
+      WHERE v.fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY DATE_FORMAT(v.fecha_venta, '%H:00'), p.id, p.nombre
+      ORDER BY hora, cantidad DESC;
+          """, nativeQuery = true)
+  public List<IProductosPorHora> getProductosPorHora(String fechaInicio, String fechaFin);
 
 }
