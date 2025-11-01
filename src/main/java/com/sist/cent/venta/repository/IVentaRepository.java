@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
 import com.sist.cent.venta.controller.dto.IDatosSucursal;
+import com.sist.cent.venta.controller.dto.IDiasSemana;
 import com.sist.cent.venta.controller.dto.IHoraPico;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
@@ -229,5 +230,26 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
       ORDER BY hora, cantidad DESC;
           """, nativeQuery = true)
   public List<IProductosPorHora> getProductosPorHora(String fechaInicio, String fechaFin);
+
+  @Query(value = """
+      SELECT
+          CASE
+              WHEN DAYOFWEEK(fecha_venta) = 1 THEN 'DOMINGO'
+              WHEN DAYOFWEEK(fecha_venta) = 2 THEN 'LUNES'
+              WHEN DAYOFWEEK(fecha_venta) = 3 THEN 'MARTES'
+              WHEN DAYOFWEEK(fecha_venta) = 4 THEN 'MIÉRCOLES'
+              WHEN DAYOFWEEK(fecha_venta) = 5 THEN 'JUEVES'
+              WHEN DAYOFWEEK(fecha_venta) = 6 THEN 'VIERNES'
+              WHEN DAYOFWEEK(fecha_venta) = 7 THEN 'SÁBADO'
+          END as dia,
+          AVG(subtotal) as ventasPromedio,
+          COUNT(*) as cantidadVentas,
+          SUM(subtotal) as totalVentas
+      FROM venta
+      WHERE fecha_venta BETWEEN :fechaInicio AND :fechaFin
+      GROUP BY dia
+      ORDER BY totalVentas DESC
+          """, nativeQuery = true)
+  public List<IDiasSemana> getVentasDiarias(String fechaInicio, String fechaFin);
 
 }

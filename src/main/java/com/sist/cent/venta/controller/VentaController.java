@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sist.cent.venta.controller.dto.EAgrupacion;
 import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
+import com.sist.cent.venta.controller.dto.IDiasSemana;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
 import com.sist.cent.venta.controller.dto.IProductosMargenes;
 import com.sist.cent.venta.controller.dto.SucursalDashboardDTO;
@@ -99,6 +100,12 @@ public class VentaController {
   public ResponseEntity<List<VentasPorHorarioDTO>> getProductosPorHora(@RequestParam String fechaInicio,
       @RequestParam String fechaFin) {
     return ResponseEntity.ok(service.getVentasPorHorario(fechaInicio, fechaFin));
+  }
+
+  @GetMapping("analisis/dias-semana")
+  public ResponseEntity<List<IDiasSemana>> getVentasDiarias(@RequestParam String fechaInicio,
+      @RequestParam String fechaFin) {
+    return ResponseEntity.ok(service.getVentasDiarias(fechaInicio, fechaFin));
   }
 
 }

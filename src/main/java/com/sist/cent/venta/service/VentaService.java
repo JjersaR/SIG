@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.sist.cent.venta.controller.dto.EAgrupacion;
 import com.sist.cent.venta.controller.dto.IAnalisisVentas;
 import com.sist.cent.venta.controller.dto.IDashBoard;
+import com.sist.cent.venta.controller.dto.IDiasSemana;
 import com.sist.cent.venta.controller.dto.IProductoMasVendido;
 import com.sist.cent.venta.controller.dto.IProductoMasVendidos;
 import com.sist.cent.venta.controller.dto.IProductosMargenes;
@@ -131,6 +132,10 @@ public class VentaService {
               .build();
         }).toList();
 
+  }
+
+  public List<IDiasSemana> getVentasDiarias(String fechaInicio, String fechaFin) {
+    return repository.getVentasDiarias(fechaInicio, fechaFin);
   }
 
   // mapper
